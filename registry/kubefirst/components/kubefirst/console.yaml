@@ -1,0 +1,71 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kubefirst-console
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '10'
+spec:
+  project: default
+  source:
+    repoURL: https://kubefirst.github.io/charts
+    targetRevision: 2.1.7
+    chart: console
+    helm:
+      values: |-
+        env:
+          ARGO_CD_URL:
+            value: "https://argocd.kubefirst.dev"
+          ARGO_WORKFLOWS_URL:
+            value: "https://argo.kubefirst.dev"
+          ATLANTIS_URL:
+            value: "https://atlantis.kubefirst.dev"
+          CLOUD:
+            value: "k3d"
+          CLUSTER_ID:
+            value: "vcu9we"
+          CLUSTER_TYPE:
+            value: "mgmt"
+          DOMAIN_NAME:
+            value: "kubefirst.dev"
+          GIT_PROVIDER:
+            value: "github"
+          GITHUB_OWNER:
+            value: "alephz-ai"
+          K3D_DOMAIN:
+            value: "kubefirst.dev"
+          KUBEFIRST_VERSION:
+            value: "v2.0.8"
+          KUBEFIRST_TEAM:
+            value: "false"
+          METAPHOR_DEVELOPMENT_URL:
+            value: "https://metaphor-development.kubefirst.dev"
+          METAPHOR_STAGING_URL:
+            value: "https://metaphor-staging.kubefirst.dev"
+          METAPHOR_PRODUCTION_URL:
+            value: "https://metaphor-production.kubefirst.dev"
+          USE_TELEMETRY:
+            value: "true"
+          VAULT_URL:
+            value: "https://vault.kubefirst.dev"
+        ingress:
+          enabled: true
+          className: ""
+          hosts:
+            - host: kubefirst.kubefirst.dev
+              paths:
+                - path: /
+                  pathType: Prefix
+          tls:
+            - secretName: kubefirst-tls
+              hosts:
+                - kubefirst.kubefirst.dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kubefirst
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
